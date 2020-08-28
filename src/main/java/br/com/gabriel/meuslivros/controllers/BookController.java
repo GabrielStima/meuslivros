@@ -38,39 +38,38 @@ public class BookController {
 
 	@GetMapping("/my-books")
 	@ApiOperation(value = "Retorna todos os livros cadastrados")
-	public List<Book> list() {
+	public List<Book> listAllBooks() {
 		return bookRepository.findAll();
 	}
 
 	@GetMapping("/my-books/{id}")
 	@ApiOperation(value = "Retorna um determinado livro")
-	public Book listById(@PathVariable(value = "id") long id) {
+	public Book listBookById(@PathVariable(value = "id") long id) {
 		return bookRepository.findById(id);
 	}
 	
 	@GetMapping("/my-books/category")
 	@ApiOperation(value = "Retorna um determinado livro")
-	public ResponseEntity<?> listByCategory(@RequestParam(value = "category") String category) {
+	public ResponseEntity<?> listBooksByCategory(@RequestParam(value = "category") String category) {
 		
 		Book book = new Book();
 		String[] tempParams = category.split(",");
 		List<String> params = new ArrayList<>();
 		
-		for (String string : tempParams) {
-			params.add(string);
+		for (String param : tempParams) {
+			params.add(param);
 		}
 				
 		if (!book.validateCategory(params)) {
 			return new ResponseEntity<>(new IllegalArgumentException("Categoria Inválida"), HttpStatus.BAD_REQUEST);
 		}
 		
-		//Não consegui fazer a query com mais de um parametro
-		return new ResponseEntity<>(bookRepository.findByCategories(category), HttpStatus.OK);
+		return new ResponseEntity<>(bookRepository.findByCategoriesIn(params), HttpStatus.OK);
 	}
 
 	@PostMapping("/my-books")
 	@ApiOperation(value = "Cadastra um novo livro")
-	public ResponseEntity<?> create(@RequestBody Book book) {
+	public ResponseEntity<?> createRecordBook(@RequestBody Book book) {
 		if (!book.validateCategory(book.getCategories())) {
 			return new ResponseEntity<>(new IllegalArgumentException("Categoria Inválida"), HttpStatus.BAD_REQUEST);
 		}
@@ -79,23 +78,23 @@ public class BookController {
 
 	@DeleteMapping("/my-books/{id}")
 	@ApiOperation(value = "Deleta um livro especifico")
-	public void delete(@PathVariable(value="id") long id) {
+	public void deleteBook(@PathVariable(value="id") long id) {
 		bookRepository.deleteById(id);
 	}
 
 	@PutMapping("/my-books/{id}")
 	@ApiOperation(value = "Atualiza um livro especifico")
-	public ResponseEntity<?> update(@PathVariable(value="id") long id, @RequestBody Book book) {
+	public ResponseEntity<?> updateBook(@PathVariable(value="id") long id, @RequestBody Book book) {
 		
-		Book temp = bookRepository.findById(id);
-		temp.setCategories(book.getCategories());
-		temp.setName(book.getName());
-		temp.setValue(book.getValue());
+		Book foundBook = bookRepository.findById(id);
+		foundBook.setCategories(book.getCategories());
+		foundBook.setName(book.getName());
+		foundBook.setValue(book.getValue());
 		
 		if (!book.validateCategory(book.getCategories())) {
 			return new ResponseEntity<>(new IllegalArgumentException("Categoria Inválida"), HttpStatus.BAD_REQUEST);
 		}
-		return new ResponseEntity<>(bookRepository.save(temp), HttpStatus.OK);
+		return new ResponseEntity<>(bookRepository.save(foundBook), HttpStatus.OK);
 		
 	}
 

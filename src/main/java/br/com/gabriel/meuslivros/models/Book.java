@@ -80,7 +80,3 @@ public class Book {
 	}
 
 }
-
-enum CategoriesEnum {
-	COMEDIA, ROMANCE, TERROR, ANIMACAO
-}
